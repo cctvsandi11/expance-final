@@ -34,7 +34,7 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="income" class="form-label">Total Uang (IDR)</label>
-                            <input type="number" class="form-control" id="income" value="4000000" min="0">
+                            <input type="text" class="form-control numberformat" id="income" value="4000000" min="0">
                         </div>
                     </div>
                 </div>
@@ -49,11 +49,11 @@
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <label class="form-label">Nama Pengeluaran</label>
-                                    <input type="text" class="form-control expense-name" placeholder="Contoh: Skincare">
+                                    <input type="text" class="form-control expense-name" placeholder="Contoh: Nabung">
                                 </div>
                                 <div class="col-md-12 mt-3">
                                     <label class="form-label">Jumlah (IDR)</label>
-                                    <input type="number" class="form-control expense-amount" min="0" placeholder="Contoh: 150000">
+                                    <input type="text" class="form-control numberformat expense-amount" min="0" placeholder="Contoh: 500000">
                                 </div>
                             </div>
                         </div>
@@ -76,75 +76,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="expense-name">Nabung</td>
-                            <td class="expense-amount">Rp 2.000.000</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="expense-name">Sedekah Penghasilan</td>
-                            <td class="expense-amount">Rp 175.000</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="expense-name">Parfume</td>
-                            <td class="expense-amount">Rp 50.000</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="expense-name">Facewash</td>
-                            <td class="expense-amount">Rp 75.000</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="expense-name">Jajan Sehari-hari</td>
-                            <td class="expense-amount">Rp 1.000.000</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="expense-name">Service Motor</td>
-                            <td class="expense-amount">Rp 100.000</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="expense-name">Beli Baju</td>
-                            <td class="expense-amount">Rp 300.000</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="expense-name">Akuarium</td>
-                            <td class="expense-amount">Rp 200.000</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                            </td>
-                        </tr>
                     </tbody>
                     <tfoot>
                         <tr>
                             <td>Total Uang</td>
-                            <td colspan="2" id="incomeHtml">Rp 0</td>
+                            <td colspan="2" id="incomeHtml">Rp 4.000.000</td>
                         </tr>
                         <tr>
                             <td>Total Pengeluaran</td>
@@ -152,14 +88,10 @@
                         </tr>
                         <tr>
                             <td>Sisa Uang</td>
-                            <td colspan="2" id="balance">Rp 0</td>
+                            <td colspan="2" id="balance">Rp 4.000.000</td>
                         </tr>
                     </tfoot>
                 </table>
-                <!-- <div class="mb-3">
-                    <label for="balance" class="form-label">Sisa Uang (IDR)</label>
-                    <input type="text" class="form-control" id="balance" readonly>
-                </div> -->
                 <button class="btn btn-info mb-3" id="downloadExcel">Download Excel</button>
             </div>
         </div>
@@ -178,21 +110,100 @@
                 return parseFloat(rupiah.replace(/Rp\s?|\./g, '')) || 0;
             }
 
+            // Fungsi untuk memformat input menjadi mata uang Rupiah
+            function formatCurrency(input) {
+                let value = parseRupiah(input.value);
+                input.value = formatRupiah(value);
+            }
+
+            // Event listener untuk input jenis numberformat
+            $('input.numberformat').keyup(function(event) {
+                // skip for arrow keys
+                if (event.which >= 37 && event.which <= 40) return;
+
+                // format number
+                $(this).val(function(index, value) {
+                    return formatRupiah(parseRupiah(value));
+                });
+            });
+
             function calculateBalance() {
-                let income = parseFloat($('#income').val()) || 0;
+                let income = parseRupiah($('#income').val());
                 let totalExpenses = 0;
                 $('#expenseTable tbody tr').each(function() {
                     let amount = parseRupiah($(this).find('.expense-amount').text());
                     totalExpenses += amount;
                 });
-                $('#incomeHtml').html(formatRupiah($('#income').val()));
+                $('#incomeHtml').html(formatRupiah(income));
                 $('#totalExpenses').html(formatRupiah(totalExpenses));
                 $('#balance').html(formatRupiah(income - totalExpenses));
             }
 
+            function loadFromLocalStorage() {
+                let storedData = localStorage.getItem('financialData');
+                if (storedData) {
+                    let data = JSON.parse(storedData);
+                    $('#income').val(formatRupiah(data.income));
+                    data.expenses.forEach(expense => {
+                        $('#expenseTable tbody').append(`
+                            <tr>
+                                <td class="expense-name">${expense.name}</td>
+                                <td class="expense-amount">${formatRupiah(expense.amount)}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-expense">Edit</button>
+                                    <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                    calculateBalance();
+                } else {
+                    // Load default expenses
+                    let defaultExpenses = [
+                        { name: "Nabung", amount: 2000000 },
+                        { name: "Sedekah Penghasilan", amount: 175000 },
+                        { name: "Parfume", amount: 50000 },
+                        { name: "Facewash", amount: 75000 },
+                        { name: "Jajan Sehari-hari", amount: 1000000 },
+                        { name: "Service Motor", amount: 100000 },
+                        { name: "Beli Baju", amount: 300000 },
+                        { name: "Akuarium", amount: 200000 }
+                    ];
+                    defaultExpenses.forEach(expense => {
+                        $('#expenseTable tbody').append(`
+                            <tr>
+                                <td class="expense-name">${expense.name}</td>
+                                <td class="expense-amount">${formatRupiah(expense.amount)}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-expense">Edit</button>
+                                    <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                    calculateBalance();
+                    saveToLocalStorage();
+                }
+            }
+
+            function saveToLocalStorage() {
+                let income = parseRupiah($('#income').val());
+                let expenses = [];
+                $('#expenseTable tbody tr').each(function() {
+                    let name = $(this).find('.expense-name').text();
+                    let amount = parseRupiah($(this).find('.expense-amount').text());
+                    expenses.push({ name: name, amount: amount });
+                });
+                let financialData = {
+                    income: income,
+                    expenses: expenses
+                };
+                localStorage.setItem('financialData', JSON.stringify(financialData));
+            }
+
             $('#addExpense').click(function() {
                 let name = $('.expense-name').val().trim();
-                let amount = parseFloat($('.expense-amount').val().trim()) || 0;
+                let amount = parseRupiah($('.expense-amount').val().trim());
 
                 if (name && amount > 0) {
                     $('#expenseTable tbody').append(`
@@ -208,6 +219,7 @@
                     $('.expense-name').val('');
                     $('.expense-amount').val('');
                     calculateBalance();
+                    saveToLocalStorage();
                 } else {
                     alert('Silakan masukkan nama dan jumlah pengeluaran yang valid.');
                 }
@@ -220,7 +232,7 @@
 
                 row.html(`
                     <td><input type="text" class="form-control expense-name" value="${name}"></td>
-                    <td><input type="number" class="form-control expense-amount" value="${amount}" min="0"></td>
+                    <td><input type="text" class="form-control numberformat expense-amount" value="${formatRupiah(amount)}" min="0"></td>
                     <td>
                         <button class="btn btn-success btn-sm save-expense">Update</button>
                         <button class="btn btn-danger btn-sm cancel-edit">Batal</button>
@@ -231,7 +243,7 @@
             $(document).on('click', '.save-expense', function() {
                 let row = $(this).closest('tr');
                 let name = row.find('.expense-name').val().trim();
-                let amount = parseFloat(row.find('.expense-amount').val().trim()) || 0;
+                let amount = parseRupiah(row.find('.expense-amount').val().trim());
 
                 if (name && amount > 0) {
                     row.html(`
@@ -243,6 +255,7 @@
                         </td>
                     `);
                     calculateBalance();
+                    saveToLocalStorage();
                 } else {
                     alert('Silakan masukkan nama dan jumlah pengeluaran yang valid.');
                 }
@@ -255,38 +268,46 @@
             $(document).on('click', '.delete-expense', function() {
                 $(this).closest('tr').remove();
                 calculateBalance();
+                saveToLocalStorage();
             });
 
             $('#downloadExcel').click(function() {
-                let income = parseFloat($('#income').val()) || 0;
+                let income = parseRupiah($('#income').val());
                 let balance = $('#balance').html();
-                let totalExpenses = 0;
+                let hasExpenses = $('#expenseTable tbody tr').length > 0;
 
-                let expenses = [];
-                $('#expenseTable tbody tr').each(function() {
-                    let name = $(this).find('.expense-name').text();
-                    let amount = parseRupiah($(this).find('.expense-amount').text());
-                    totalExpenses += amount;
-                    expenses.push([name, formatRupiah(amount)]);
-                });
+                if (income === 0 || balance === 0 || !hasExpenses) {
+                    alert('Silakan masukkan pendapatan dan pengeluaran yang valid.');
+                } else {
+                    let totalExpenses = 0;
 
-                let wb = XLSX.utils.book_new();
-                let ws_data = [
-                    ["Total Pendapatan", formatRupiah(income)],
-                    ["Total Pengeluaran", formatRupiah(totalExpenses)],
-                    ["Sisa Uang", balance],
-                    [],
-                    ["Nama Pengeluaran", "Jumlah"]
-                ];
+                    let expenses = [];
+                    $('#expenseTable tbody tr').each(function() {
+                        let name = $(this).find('.expense-name').text();
+                        let amount = parseRupiah($(this).find('.expense-amount').text());
+                        totalExpenses += amount;
+                        expenses.push([name, formatRupiah(amount)]);
+                    });
 
-                expenses.forEach(exp => ws_data.push(exp));
+                    let wb = XLSX.utils.book_new();
+                    let ws_data = [
+                        ["Total Pendapatan", formatRupiah(income)],
+                        ["Total Pengeluaran", formatRupiah(totalExpenses)],
+                        ["Sisa Uang", balance],
+                        [],
+                        ["Nama Pengeluaran", "Jumlah"]
+                    ];
 
-                let ws = XLSX.utils.aoa_to_sheet(ws_data);
-                XLSX.utils.book_append_sheet(wb, ws, "Laporan Keuangan");
-                XLSX.writeFile(wb, "Laporan_Keuangan.xlsx");
+                    expenses.forEach(exp => ws_data.push(exp));
+
+                    let ws = XLSX.utils.aoa_to_sheet(ws_data);
+                    XLSX.utils.book_append_sheet(wb, ws, "Laporan Keuangan");
+                    XLSX.writeFile(wb, "Laporan_Keuangan.xlsx");
+                }
+
             });
 
-            calculateBalance();
+            loadFromLocalStorage();
         });
     </script>
 </body>
