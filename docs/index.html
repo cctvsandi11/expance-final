@@ -196,30 +196,37 @@
             $('#downloadExcel').click(function() {
                 let income = parseFloat($('#income').val()) || 0;
                 let balance = $('#balance').html();
-                let totalExpenses = 0;
+                let hasExpenses = $('#expenseTable tbody tr').length > 0;
 
-                let expenses = [];
-                $('#expenseTable tbody tr').each(function() {
-                    let name = $(this).find('.expense-name').text();
-                    let amount = parseRupiah($(this).find('.expense-amount').text());
-                    totalExpenses += amount;
-                    expenses.push([name, formatRupiah(amount)]);
-                });
+                if (income === 0 || balance === 0 || !hasExpenses) {
+                    alert('Silakan masukkan pendapatan dan pengeluaran yang valid.');
+                } else {
+                    let totalExpenses = 0;
 
-                let wb = XLSX.utils.book_new();
-                let ws_data = [
-                    ["Total Pendapatan", formatRupiah(income)],
-                    ["Total Pengeluaran", formatRupiah(totalExpenses)],
-                    ["Sisa Uang", balance],
-                    [],
-                    ["Nama Pengeluaran", "Jumlah"]
-                ];
+                    let expenses = [];
+                    $('#expenseTable tbody tr').each(function() {
+                        let name = $(this).find('.expense-name').text();
+                        let amount = parseRupiah($(this).find('.expense-amount').text());
+                        totalExpenses += amount;
+                        expenses.push([name, formatRupiah(amount)]);
+                    });
 
-                expenses.forEach(exp => ws_data.push(exp));
+                    let wb = XLSX.utils.book_new();
+                    let ws_data = [
+                        ["Total Pendapatan", formatRupiah(income)],
+                        ["Total Pengeluaran", formatRupiah(totalExpenses)],
+                        ["Sisa Uang", balance],
+                        [],
+                        ["Nama Pengeluaran", "Jumlah"]
+                    ];
 
-                let ws = XLSX.utils.aoa_to_sheet(ws_data);
-                XLSX.utils.book_append_sheet(wb, ws, "Laporan Keuangan");
-                XLSX.writeFile(wb, "Laporan_Keuangan.xlsx");
+                    expenses.forEach(exp => ws_data.push(exp));
+
+                    let ws = XLSX.utils.aoa_to_sheet(ws_data);
+                    XLSX.utils.book_append_sheet(wb, ws, "Laporan Keuangan");
+                    XLSX.writeFile(wb, "Laporan_Keuangan.xlsx");
+                }
+                
             });
 
             calculateBalance();
