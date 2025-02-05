@@ -216,6 +216,7 @@
                         <button class="btn btn-danger btn-sm cancel-edit">Batal</button>
                     </td>
                 `);
+                calculateBalance();
             });
 
             $(document).on('click', '.save-expense', function() {
@@ -251,6 +252,7 @@
                         <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
                     </td>
                 `);
+                calculateBalance();
             });
 
             $(document).on('click', '.delete-expense', function() {
