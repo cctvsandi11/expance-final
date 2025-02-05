@@ -92,10 +92,6 @@
                         </tr>
                     </tfoot>
                 </table>
-                <!-- <div class="mb-3">
-                    <label for="balance" class="form-label">Sisa Uang (IDR)</label>
-                    <input type="text" class="form-control" id="balance" readonly>
-                </div> -->
                 <button class="btn btn-info mb-3" id="downloadExcel">Download Excel</button>
             </div>
         </div>
@@ -126,6 +122,42 @@
                 $('#balance').html(formatRupiah(income - totalExpenses));
             }
 
+            function loadFromLocalStorage() {
+                let storedData = localStorage.getItem('financialData');
+                if (storedData) {
+                    let data = JSON.parse(storedData);
+                    $('#income').val(data.income);
+                    data.expenses.forEach(expense => {
+                        $('#expenseTable tbody').append(`
+                            <tr>
+                                <td class="expense-name">${expense.name}</td>
+                                <td class="expense-amount">${formatRupiah(expense.amount)}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-expense">Edit</button>
+                                    <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                    calculateBalance();
+                }
+            }
+
+            function saveToLocalStorage() {
+                let income = parseFloat($('#income').val()) || 0;
+                let expenses = [];
+                $('#expenseTable tbody tr').each(function() {
+                    let name = $(this).find('.expense-name').text();
+                    let amount = parseRupiah($(this).find('.expense-amount').text());
+                    expenses.push({ name: name, amount: amount });
+                });
+                let financialData = {
+                    income: income,
+                    expenses: expenses
+                };
+                localStorage.setItem('financialData', JSON.stringify(financialData));
+            }
+
             $('#addExpense').click(function() {
                 let name = $('.expense-name').val().trim();
                 let amount = parseFloat($('.expense-amount').val().trim()) || 0;
@@ -144,6 +176,7 @@
                     $('.expense-name').val('');
                     $('.expense-amount').val('');
                     calculateBalance();
+                    saveToLocalStorage();
                 } else {
                     alert('Silakan masukkan nama dan jumlah pengeluaran yang valid.');
                 }
@@ -179,6 +212,7 @@
                         </td>
                     `);
                     calculateBalance();
+                    saveToLocalStorage();
                 } else {
                     alert('Silakan masukkan nama dan jumlah pengeluaran yang valid.');
                 }
@@ -191,6 +225,7 @@
             $(document).on('click', '.delete-expense', function() {
                 $(this).closest('tr').remove();
                 calculateBalance();
+                saveToLocalStorage();
             });
 
             $('#downloadExcel').click(function() {
@@ -226,10 +261,10 @@
                     XLSX.utils.book_append_sheet(wb, ws, "Laporan Keuangan");
                     XLSX.writeFile(wb, "Laporan_Keuangan.xlsx");
                 }
-                
+
             });
 
-            calculateBalance();
+            loadFromLocalStorage();
         });
     </script>
 </body>
