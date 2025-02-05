@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Keuangan Pribadi</title>
+    <!-- Bootstrap CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jQuery via CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .card {
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 40vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Aplikasi Keuangan Pribadi</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        Pendapatan
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="income" class="form-label">Pendapatan (IDR)</label>
+                            <input type="number" class="form-control" id="income" value="4000000" min="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Pengeluaran
+            </div>
+            <div class="card-body">
+                <div id="expenses">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" value="Sedekah">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" value="175000" min="0">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" value="Parfume">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" value="50000" min="0">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" value="Facewash">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" value="75000" min="0">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" value="Cemilan">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" value="200000" min="0">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" value="Jajan sehari-hari">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" value="1000000" min="0">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" value="Service Motor">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" value="100000" min="0">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" value="Beli Baju">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" value="300000" min="0">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" value="Akuarium">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" value="200000" min="0">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary mb-3" id="addExpense">Tambah Pengeluaran</button>
+                <button class="btn btn-danger mb-3" id="removeExpense">Hapus Pengeluaran</button>
+                <br>
+                <button class="btn btn-success" id="calculate">Hitung Sisa Uang</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        Sisa Uang
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="balance" class="form-label">Sisa Uang (IDR)</label>
+                            <input type="number" class="form-control" id="balance" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Grafik Pengeluaran
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let expenseChart;
+
+            function calculateBalance() {
+                let income = parseFloat($('#income').val()) || 0;
+                let totalExpenses = 0;
+                $('.expense-amount').each(function() {
+                    totalExpenses += parseFloat($(this).val()) || 0;
+                });
+                $('#balance').val(income - totalExpenses);
+                updateChart();
+            }
+
+            function updateChart() {
+                let expenseLabels = [];
+                let expenseValues = [];
+                $('.expense-name').each(function(index) {
+                    let label = $(this).val().trim();
+                    let value = parseFloat($('.expense-amount').eq(index).val()) || 0;
+                    if (label) {
+                        expenseLabels.push(label);
+                        expenseValues.push(value);
+                    }
+                });
+
+                if (expenseChart) {
+                    expenseChart.data.labels = expenseLabels;
+                    expenseChart.data.datasets[0].data = expenseValues;
+                    expenseChart.update();
+                } else {
+                    expenseChart = new Chart(document.getElementById('expenseChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: expenseLabels,
+                            datasets: [{
+                                label: 'Pengeluaran (IDR)',
+                                data: expenseValues,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            $('#calculate').click(function() {
+                calculateBalance();
+            });
+
+            $('#addExpense').click(function() {
+                let newExpense = `
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Pengeluaran</label>
+                            <input type="text" class="form-control expense-name" placeholder="Nama Pengeluaran">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah (IDR)</label>
+                            <input type="number" class="form-control expense-amount" min="0" placeholder="Jumlah">
+                        </div>
+                    </div>
+                `;
+                $('#expenses').append(newExpense);
+            });
+
+            $('#removeExpense').click(function() {
+                let expenseRows = $('#expenses .row');
+                if (expenseRows.length > 1) {
+                    expenseRows.last().remove();
+                }
+            });
+
+            // Initial balance calculation
+            calculateBalance();
+        });
+    </script>
+</body>
+</html>
