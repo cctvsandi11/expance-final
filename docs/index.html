@@ -17,58 +17,47 @@
         .edit-mode {
             display: none;
         }
+        .table tfoot td {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Aplikasi Keuangan Pribadi</h1>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        Pendapatan
+                        Total Uang
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="income" class="form-label">Pendapatan (IDR)</label>
-                            <input type="number" class="form-control" id="income" value="3000000" min="0">
+                            <label for="income" class="form-label">Total Uang (IDR)</label>
+                            <input type="number" class="form-control" id="income" value="4000000" min="0">
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                Pengeluaran
-            </div>
-            <div class="card-body">
-                <div id="expenses">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nama Pengeluaran</label>
-                            <input type="text" class="form-control expense-name" placeholder="Contoh: Skincare">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Jumlah (IDR)</label>
-                            <input type="number" class="form-control expense-amount" min="0" placeholder="Contoh: 150000">
-                        </div>
-                    </div>
-                </div>
-                <button class="btn btn-primary mb-3" id="addExpense">Tambah Pengeluaran</button>
-                <!-- <button class="btn btn-success mb-3" id="calculate">Hitung Sisa Uang</button> -->
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        Sisa Uang
+                        Pengeluaran
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label for="balance" class="form-label">Sisa Uang (IDR)</label>
-                            <input type="text" class="form-control" id="balance" readonly>
+                        <div id="expenses">
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">Nama Pengeluaran</label>
+                                    <input type="text" class="form-control expense-name" placeholder="Contoh: Nabung">
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <label class="form-label">Jumlah (IDR)</label>
+                                    <input type="number" class="form-control expense-amount" min="0" placeholder="Contoh: 500000">
+                                </div>
+                            </div>
                         </div>
+                        <button class="btn btn-primary mb-3" id="addExpense">Tambah Pengeluaran</button>
                     </div>
                 </div>
             </div>
@@ -88,7 +77,25 @@
                     </thead>
                     <tbody>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td>Total Uang</td>
+                            <td colspan="2" id="incomeHtml">Rp 0</td>
+                        </tr>
+                        <tr>
+                            <td>Total Pengeluaran</td>
+                            <td colspan="2" id="totalExpenses">Rp 0</td>
+                        </tr>
+                        <tr>
+                            <td>Sisa Uang</td>
+                            <td colspan="2" id="balance">Rp 0</td>
+                        </tr>
+                    </tfoot>
                 </table>
+                <!-- <div class="mb-3">
+                    <label for="balance" class="form-label">Sisa Uang (IDR)</label>
+                    <input type="text" class="form-control" id="balance" readonly>
+                </div> -->
                 <button class="btn btn-info mb-3" id="downloadExcel">Download Excel</button>
             </div>
         </div>
@@ -98,23 +105,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
+
             function formatRupiah(angka) {
                 return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            function parseRupiah(rupiah) {
+                return parseFloat(rupiah.replace(/Rp\s?|\./g, '')) || 0;
             }
 
             function calculateBalance() {
                 let income = parseFloat($('#income').val()) || 0;
                 let totalExpenses = 0;
                 $('#expenseTable tbody tr').each(function() {
-                    let amount = parseFloat($(this).find('.expense-amount').text()) || 0;
+                    let amount = parseRupiah($(this).find('.expense-amount').text());
                     totalExpenses += amount;
                 });
-                $('#balance').val(formatRupiah(income - totalExpenses));
+                $('#incomeHtml').html(formatRupiah($('#income').val()));
+                $('#totalExpenses').html(formatRupiah(totalExpenses));
+                $('#balance').html(formatRupiah(income - totalExpenses));
             }
-
-            $('#calculate').click(function() {
-                calculateBalance();
-            });
 
             $('#addExpense').click(function() {
                 let name = $('.expense-name').val().trim();
@@ -124,7 +134,7 @@
                     $('#expenseTable tbody').append(`
                         <tr>
                             <td class="expense-name">${name}</td>
-                            <td class="expense-amount">${amount}</td>
+                            <td class="expense-amount">${formatRupiah(amount)}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm edit-expense">Edit</button>
                                 <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
@@ -142,7 +152,7 @@
             $(document).on('click', '.edit-expense', function() {
                 let row = $(this).closest('tr');
                 let name = row.find('.expense-name').text();
-                let amount = row.find('.expense-amount').text();
+                let amount = parseRupiah(row.find('.expense-amount').text());
 
                 row.html(`
                     <td><input type="text" class="form-control expense-name" value="${name}"></td>
@@ -162,7 +172,7 @@
                 if (name && amount > 0) {
                     row.html(`
                         <td class="expense-name">${name}</td>
-                        <td class="expense-amount">${amount}</td>
+                        <td class="expense-amount">${formatRupiah(amount)}</td>
                         <td>
                             <button class="btn btn-warning btn-sm edit-expense">Edit</button>
                             <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
@@ -175,18 +185,7 @@
             });
 
             $(document).on('click', '.cancel-edit', function() {
-                let row = $(this).closest('tr');
-                let name = row.find('.expense-name').val().trim();
-                let amount = row.find('.expense-amount').val().trim();
-
-                row.html(`
-                    <td class="expense-name">${name}</td>
-                    <td class="expense-amount">${amount}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm edit-expense">Edit</button>
-                        <button class="btn btn-danger btn-sm delete-expense">Hapus</button>
-                    </td>
-                `);
+                calculateBalance();
             });
 
             $(document).on('click', '.delete-expense', function() {
@@ -196,13 +195,13 @@
 
             $('#downloadExcel').click(function() {
                 let income = parseFloat($('#income').val()) || 0;
-                let balance = $('#balance').val();
+                let balance = $('#balance').html();
                 let totalExpenses = 0;
 
                 let expenses = [];
                 $('#expenseTable tbody tr').each(function() {
                     let name = $(this).find('.expense-name').text();
-                    let amount = parseFloat($(this).find('.expense-amount').text()) || 0;
+                    let amount = parseRupiah($(this).find('.expense-amount').text());
                     totalExpenses += amount;
                     expenses.push([name, formatRupiah(amount)]);
                 });
