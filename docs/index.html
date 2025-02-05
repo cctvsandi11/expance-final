@@ -34,7 +34,7 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="income" class="form-label">Total Uang (IDR)</label>
-                            <input type="number" class="form-control" id="income" value="0" min="0">
+                            <input type="text" class="form-control numberformat" id="income" value="0" min="0">
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                                 </div>
                                 <div class="col-md-12 mt-3">
                                     <label class="form-label">Jumlah (IDR)</label>
-                                    <input type="number" class="form-control expense-amount" min="0" placeholder="Contoh: 500000">
+                                    <input type="text" class="form-control numberformat expense-amount" min="0" placeholder="Contoh: 500000">
                                 </div>
                             </div>
                         </div>
@@ -110,14 +110,36 @@
                 return parseFloat(rupiah.replace(/Rp\s?|\./g, '')) || 0;
             }
 
+            // Fungsi untuk menghapus format dan mengembalikan nilai asli
+            function unformatRupiah(rupiah) {
+                return rupiah.replace(/Rp\s?|\./g, '');
+            }
+
+            // Fungsi untuk memformat input menjadi mata uang Rupiah
+            function formatCurrency(input) {
+                let value = parseRupiah(input.value);
+                input.value = formatRupiah(value);
+            }
+
+            // Event listener untuk input jenis numberformat
+            $('input.numberformat').keyup(function(event) {
+                // skip for arrow keys
+                if (event.which >= 37 && event.which <= 40) return;
+
+                // format number
+                $(this).val(function(index, value) {
+                    return formatRupiah(parseRupiah(value));
+                });
+            });
+
             function calculateBalance() {
-                let income = parseFloat($('#income').val()) || 0;
+                let income = parseRupiah($('#income').val());
                 let totalExpenses = 0;
                 $('#expenseTable tbody tr').each(function() {
                     let amount = parseRupiah($(this).find('.expense-amount').text());
                     totalExpenses += amount;
                 });
-                $('#incomeHtml').html(formatRupiah($('#income').val()));
+                $('#incomeHtml').html(formatRupiah(income));
                 $('#totalExpenses').html(formatRupiah(totalExpenses));
                 $('#balance').html(formatRupiah(income - totalExpenses));
             }
@@ -126,7 +148,7 @@
                 let storedData = localStorage.getItem('financialData');
                 if (storedData) {
                     let data = JSON.parse(storedData);
-                    $('#income').val(data.income);
+                    $('#income').val(formatRupiah(data.income));
                     data.expenses.forEach(expense => {
                         $('#expenseTable tbody').append(`
                             <tr>
@@ -144,7 +166,7 @@
             }
 
             function saveToLocalStorage() {
-                let income = parseFloat($('#income').val()) || 0;
+                let income = parseRupiah($('#income').val());
                 let expenses = [];
                 $('#expenseTable tbody tr').each(function() {
                     let name = $(this).find('.expense-name').text();
@@ -160,7 +182,7 @@
 
             $('#addExpense').click(function() {
                 let name = $('.expense-name').val().trim();
-                let amount = parseFloat($('.expense-amount').val().trim()) || 0;
+                let amount = parseRupiah($('.expense-amount').val().trim());
 
                 if (name && amount > 0) {
                     $('#expenseTable tbody').append(`
@@ -189,7 +211,7 @@
 
                 row.html(`
                     <td><input type="text" class="form-control expense-name" value="${name}"></td>
-                    <td><input type="number" class="form-control expense-amount" value="${amount}" min="0"></td>
+                    <td><input type="text" class="form-control numberformat expense-amount" value="${formatRupiah(amount)}" min="0"></td>
                     <td>
                         <button class="btn btn-success btn-sm save-expense">Update</button>
                         <button class="btn btn-danger btn-sm cancel-edit">Batal</button>
@@ -200,7 +222,7 @@
             $(document).on('click', '.save-expense', function() {
                 let row = $(this).closest('tr');
                 let name = row.find('.expense-name').val().trim();
-                let amount = parseFloat(row.find('.expense-amount').val().trim()) || 0;
+                let amount = parseRupiah(row.find('.expense-amount').val().trim());
 
                 if (name && amount > 0) {
                     row.html(`
@@ -229,7 +251,7 @@
             });
 
             $('#downloadExcel').click(function() {
-                let income = parseFloat($('#income').val()) || 0;
+                let income = parseRupiah($('#income').val());
                 let balance = $('#balance').html();
                 let hasExpenses = $('#expenseTable tbody tr').length > 0;
 
